@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { StudyBoardItemEntity } from "./study-board-item.entity";
+import { StudyBoardPostsEntity } from "./study-board-posts.entity";
 import * as AWS from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
 import { format } from "date-fns";
 import { StudyType } from "./study-type";
 
-interface IStudyBoardItemRepository {
+interface IStudyBoardPostsRepository {
     save({
         userId,
         title,
@@ -16,14 +16,14 @@ interface IStudyBoardItemRepository {
         numberOfParticipants,
         startDate,
         endDate
-    }: SaveStudyBoardItemParams): Promise<void>
+    }: SaveStudyBoardPostsParams): Promise<void>
 
-    findLatest(): Promise<StudyBoardItemEntity[]>
+    findLatest(): Promise<StudyBoardPostsEntity[]>
 
-    findById(userId: string): Promise<StudyBoardItemEntity | null>
+    findById(userId: string): Promise<StudyBoardPostsEntity | null>
 }
 
-export interface SaveStudyBoardItemParams {
+export interface SaveStudyBoardPostsParams {
     userId: string,
     title: string,
     content: string,
@@ -36,7 +36,7 @@ export interface SaveStudyBoardItemParams {
 }
 
 @Injectable()
-export class StudyBoardItemRepository implements IStudyBoardItemRepository {
+export class StudyBoardPostsRepository implements IStudyBoardPostsRepository {
     dynamoDB: AWS.DynamoDB.DocumentClient
     tableName: string
     pkValue: string
@@ -68,7 +68,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
         numberOfParticipants,
         startDate,
         endDate
-    }: SaveStudyBoardItemParams): Promise<void> {
+    }: SaveStudyBoardPostsParams): Promise<void> {
         return new Promise(
             (res, rej) => {
                 const createdAt = new Date();
@@ -76,7 +76,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
                 const id = `${userId}:${createdAt.getTime()}`
                 const pk = this.pkValue;
 
-                const item: StudyBoardItemDDBEntity = {
+                const item: StudyBoardPostsDDBEntity = {
                     pk, id, userId, title, content, studyType, category, location,
                     numberOfParticipants, startDate, endDate,
                     createdAt: createdAt.toISOString(),
@@ -102,7 +102,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
         )
     }
 
-    findByUserId(userId: string): Promise<StudyBoardItemEntity[]> {
+    findByUserId(userId: string): Promise<StudyBoardPostsEntity[]> {
         return new Promise(
             (res, rej) => {
                 this.dynamoDB.query(
@@ -120,7 +120,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
                             rej(err)
                         } else {
                             console.log("GetItem succeeded:", data)
-                            const results: StudyBoardItemEntity[] = data.Items.map(Item => {
+                            const results: StudyBoardPostsEntity[] = data.Items.map(Item => {
                                 return {
                                     id: Item.id,
                                     category: Item.category,
@@ -143,7 +143,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
             }
         )
     }
-    async findLatest(): Promise<StudyBoardItemEntity[]> {
+    async findLatest(): Promise<StudyBoardPostsEntity[]> {
         return new Promise(
             (res, rej) => {
                 this.dynamoDB.query(
@@ -162,7 +162,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
                             rej(err)
                         } else {
                             console.log("GetItem succeeded:", data)
-                            const results: StudyBoardItemEntity[] = data.Items.map(Item => {
+                            const results: StudyBoardPostsEntity[] = data.Items.map(Item => {
                                 return {
                                     id: Item.id,
                                     category: Item.category,
@@ -186,7 +186,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
         )
     }
 
-    async findById(id: string): Promise<StudyBoardItemEntity | null> {
+    async findById(id: string): Promise<StudyBoardPostsEntity | null> {
         return new Promise(
             (res, rej) => {
                 this.dynamoDB.get(
@@ -207,7 +207,7 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
                             if (!data.Item)
                                 return res(null)
                             
-                            const result: StudyBoardItemEntity = {
+                            const result: StudyBoardPostsEntity = {
                                 id: data.Item.id,
                                 category: data.Item.category,
                                 userId: data.Item.userId,
@@ -230,6 +230,6 @@ export class StudyBoardItemRepository implements IStudyBoardItemRepository {
     }
 }
 
-interface StudyBoardItemDDBEntity extends StudyBoardItemEntity {
+interface StudyBoardPostsDDBEntity extends StudyBoardPostsEntity {
     pk: string
 }

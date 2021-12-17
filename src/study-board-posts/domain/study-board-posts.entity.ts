@@ -1,6 +1,6 @@
 import { StudyType } from "./study-type";
 
-export interface StudyBoardItemEntity {
+export interface StudyBoardPostsEntity {
     id: string;
     userId: string;
     title: string;
