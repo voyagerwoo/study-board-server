@@ -1,0 +1,1 @@
+export type StudyType = 'ONLINE' | 'OFFLINE' | 'HYBRID' 

@@ -1,4 +1,4 @@
-service: nest-serverless-lambda-demo
+service: study-board-server
 
 plugins:
  - serverless-plugin-typescript
@@ -11,6 +11,18 @@ provider:
  lambdaHashingVersion: 20201221
  region: ap-northeast-2
  stage: live
+ iam:
+  role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:GetItem"
+            - "dynamodb:Query"
+            - "dynamodb:Scan"
+          Resource:
+            - 'arn:aws:dynamodb:ap-northeast-2:957582603404:table/StudyBoard_v3'
+            - 'arn:aws:dynamodb:ap-northeast-2:957582603404:table/StudyBoard_v3/index/createdAt-index'
 
 functions:
  main: # The name of the lambda function

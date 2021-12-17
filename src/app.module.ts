@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { HelloController } from './controller/HelloController';
-import { StudyBoardItemQueryController } from './controller/StudyBoardItemQueryController';
-import StudyBoardItemRepository from './domain/StudyBoardItemRepository';
-import { HelloService } from './service/HelloService';
-import { StudyBoardItemQueryService } from './service/StudyBoardItemQueryService';
+import { ConfigModule } from '@nestjs/config';
+import { StudyBoardItemModule } from './study-board-item/study-board-item.module';
 
 @Module({
-  imports: [],
-  controllers: [HelloController, StudyBoardItemQueryController],
-  providers: [HelloService, StudyBoardItemQueryService, StudyBoardItemRepository],
-  exports: [StudyBoardItemQueryService]
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: ".env.local",
+    ignoreEnvFile: process.env.NODE_ENV == 'prod'
+  }), StudyBoardItemModule],
+  controllers: [],
+  providers: [],
+  exports: []
 })
 export class AppModule {}
